@@ -15,7 +15,7 @@ dev_appserver.py .
 ```
 the open the browser and go to http://localhost:8000
 
-or you can just use it online by go to
+or you can just use it online by go to https://dp-project-164521.appspot.com
 
 ### Files
 

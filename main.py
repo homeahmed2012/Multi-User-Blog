@@ -156,15 +156,13 @@ class EditHandler(Handler):  # to handle editing a blog
     def get(self, blog_id):
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
-            cookie_user_id = long(h[0])
-            blog = getBlog(blog_id)[0]
-            if blog.user_id == cookie_user_id:
-                self.render("editBlog",
+            cookie_user_id = long(check_secure_val(h))
+            blog = getBlog(blog_id)
+            if blog[0].user_id == cookie_user_id:
+                self.render("editBlog.html",
                             blog=blog)
             else:
                 self.write("error, you can edit your blogs only.")
-                time.sleep(2)
-                self.redirect('/')
         else:
             self.redirect('/login')
 
