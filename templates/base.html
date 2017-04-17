@@ -1,0 +1,16 @@
+<html>
+	<head>
+		<title>{% block title %}CS 253 Blog{% endblock %}</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+				<a href="/"><h1><center>CS 253 Blog</center></h1></a>
+			</div>
+			{% block content %}
+            {% endblock %}
+		</div>
+	</body>
+</html>

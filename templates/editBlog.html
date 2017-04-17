@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+    <h3>{{ blog[0].subject }}<br></h3>
+        <hr>
+        <form>
+        <textarea name="content"
+                  style="height: 300px; width: 400px;">
+            {{ blog[0].body }}
+        </textarea>
+        <input type="submit">
+        </form>
+        <div class="comment">
+            {% for c in blog[1] %}
+                <p>{{ c.content }}</p>
+                <br><hr>
+            {% endfor %}
+        </div>
+        <br>
+{% endblock %}

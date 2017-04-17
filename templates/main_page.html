@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if text %}
+        <p>{{ text }}</p>
+        <a href="/logout" class="btn btn-info" role="button">Logout</a>
+    {% else %}
+        <a href="/login" class="btn btn-info" role="button">Login</a>
+        <a href="/signup" class="btn btn-info" role="button">Sign up</a>
+    {% endif %}
+        <a href="/newpost" class="btn btn-info" role="button">Add blog</a>
+        <br><hr>
+    {% for b in blogs %}
+        <h3>{{ b[0].subject }}</h3>
+        <hr >
+        <pre class="blog">{{ b[0].body }}</pre>
+        <div class="comment">
+            {% for c in b[1] %}
+                <p>{{ c.content }}</p>
+            {% endfor %}
+        </div>
+        <br>
+        <a href="/comment/{{ b[0].key().id() }}">comment</a>
+        <a href="/edit/{{ b[0].key().id() }}">edit</a>
+        <a href="/like/{{ b[0].key().id() }}">like {{ b[0].like }}</a>
+        <a href="/del/{{ b[0].key().id() }}">delete</a>
+        <br><br><hr><br><br>
+    {% endfor %}
+{% endblock %}

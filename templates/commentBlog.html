@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+    <h3>{{ blog[0].subject }}</h3>
+        <hr >
+        <pre class="blog">
+            {{ blog[0].body }}
+        </pre>
+        <br><hr>
+        <div class="comment">
+            {% for c in blog[1] %}
+                <p>{{ c.content }}</p>
+            {% endfor %}
+        </div>
+        <br>
+        <form method="post">
+            <input class="addComment" type="text" name="new_comment" placeholder="add comment">
+            <input type="submit">
+        </form>
+{% endblock %}

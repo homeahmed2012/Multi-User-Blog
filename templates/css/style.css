@@ -1,0 +1,44 @@
+body {
+    background: #010204 url('http://www.dreamtemplate.com/dreamcodes/bg_images/color/c13.jpg') no-repeat center top;
+}
+
+.container {
+    background-color: #e7e7e7;
+    max-width: 900px;
+}
+
+
+pre {
+    white-space: pre-wrap;
+}
+.log {
+    float: right;
+    margin: 10px;
+}
+
+.comment {
+    width: 100%;
+}
+
+.addComment {
+    width: 700px;
+    height: 60px;
+}
+
+.label {
+    text-align: right
+}
+
+.error {
+    color: red
+}
+
+.login {
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.label {
+    color: black;
+}
