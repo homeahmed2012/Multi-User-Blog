@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+    <h3>Edit comment<br></h3>
+        <hr>
+        <form method="post">
+        <input name="content" type="text" value="{{ comment.content }}">
+        <input type="submit">
+        </form>
+        <a href="/"><h3>Cancel</h3></a>
+{% endblock %}

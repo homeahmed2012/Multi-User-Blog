@@ -2,13 +2,14 @@
 {% block content %}
     <h3>{{ blog[0].subject }}<br></h3>
         <hr>
-        <form>
+        <form method="post">
         <textarea name="content"
                   style="height: 300px; width: 400px;">
             {{ blog[0].body }}
         </textarea>
         <input type="submit">
         </form>
+        <a href="/"><h3>Cancel</h3></a>
         <div class="comment">
             {% for c in blog[1] %}
                 <p>{{ c.content }}</p>

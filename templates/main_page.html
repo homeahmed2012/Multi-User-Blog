@@ -14,16 +14,18 @@
         <h3>{{ b[0].subject }}</h3>
         <hr >
         <pre class="blog">{{ b[0].body }}</pre>
+        <a href="/comment/{{ b[0].key.id() }}">comment</a>
+        <a href="/edit/{{ b[0].key.id() }}">edit</a>
+        <a href="/like/{{ b[0].key.id() }}">like {{ b[2] }}</a>
+        <a href="/del/{{ b[0].key.id() }}">delete</a>
         <div class="comment">
             {% for c in b[1] %}
                 <p>{{ c.content }}</p>
+                <a href="/comment/edit/{{ c.key().id() }}">edit</a>
+                <a href="/comment/del/{{ c.key().id() }}">delete</a>
             {% endfor %}
         </div>
         <br>
-        <a href="/comment/{{ b[0].key().id() }}">comment</a>
-        <a href="/edit/{{ b[0].key().id() }}">edit</a>
-        <a href="/like/{{ b[0].key().id() }}">like {{ b[0].like }}</a>
-        <a href="/del/{{ b[0].key().id() }}">delete</a>
         <br><br><hr><br><br>
     {% endfor %}
 {% endblock %}

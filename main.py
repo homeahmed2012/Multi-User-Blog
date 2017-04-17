@@ -1,5 +1,4 @@
 import os
-import time
 import jinja2
 import webapp2
 from sec import *
@@ -27,8 +26,9 @@ class MainHandler(Handler):  # to handle the Home page
         h = self.request.cookies.get('user_id')
         text = ""
         if h and check_secure_val(h):
-            user_name = User.get_by_id(long(check_secure_val(h))).user_name
-            text = "welcome, %s!" % user_name
+            user_name = User.get_by_id(long(check_secure_val(h)))
+            if user_name:
+                text = "welcome, %s!" % user_name.user_name
         self.render("main_page.html",
                     blogs=blogs,
                     text=text)
@@ -109,7 +109,7 @@ class LogOutHandler(Handler):  # to handle the Logout
         self.redirect('/')
 
 
-class Fpost(Handler):  # to handle the finished blog page
+class FinishedPost(Handler):  # to handle the finished blog page
     def get(self, post_id):
         blogs = Blog.get_by_id(long(post_id))
         self.render("fisish_blog.html"
@@ -129,27 +129,39 @@ class NewPost(Handler):  # to handle the Add new post page
 
     def post(self):
         h = self.request.cookies.get('user_id')
-        sub = self.request.get('subject')
-        bod = self.request.get('content')
-        a = Blog(subject=sub,
-                 body=bod,
-                 user_id=long(h.split('|')[0]),
-                 like=0)
-        a.put()
-        self.redirect('/blog/' + str(a.key().id()))
+        if h and check_secure_val(h):
+            sub = self.request.get('subject')
+            bod = self.request.get('content')
+            a = Blog(subject=sub,
+                     body=bod,
+                     user_id=long(h.split('|')[0]),
+                     like=[])
+            a.put()
+            self.redirect('/blog/' + str(a.key.id()))
+        else:
+            self.redirect('/login')
 
 
 class CommentHandler(Handler):  # to handle adding comments
     def get(self, blog_id):
-        blog = getBlog(blog_id)
-        self.render("commentBlog.html",
-                    blog=blog)
+        h = self.request.cookies.get('user_id')
+        if h and check_secure_val(h):
+            blog = getBlog(blog_id)
+            self.render("commentBlog.html",
+                        blog=blog)
+        else:
+            self.redirect('/login')
 
     def post(self, blog_id):
-        c = Comment(content=self.request.get('new_comment'),
-                    blog_id=long(blog_id))
-        c.put()
-        self.get(blog_id)
+        h = self.request.cookies.get('user_id')
+        if h and check_secure_val(h):
+            c = Comment(content=self.request.get('new_comment'),
+                        user_id=long(check_secure_val(h)),
+                        blog_id=long(blog_id))
+            c.put()
+            self.get(blog_id)
+        else:
+            self.redirect('/login')
 
 
 class EditHandler(Handler):  # to handle editing a blog
@@ -167,19 +179,26 @@ class EditHandler(Handler):  # to handle editing a blog
             self.redirect('/login')
 
     def post(self, blog_id):
-        blog = getBlog(blog_id)
-        blog.body = self.request.get('content')
-        blog.put()
-        self.redirect('/')
+        h = self.request.cookies.get('user_id')
+        if h and check_secure_val(h):
+            blog = getBlog(blog_id)[0]
+            if blog.user_id == long(check_secure_val(h)):
+                blog.body = self.request.get('content')
+                blog.put()
+            self.redirect('/')
+        else:
+            self.redirect('/login')
 
 
 class LikeHandler(Handler):  # to handle like a blog
     def get(self, blog_id):
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
+            user_id = long(check_secure_val(h))
             blog = getBlog(blog_id)[0]
-            blog.like += 1
-            blog.put()
+            if blog.user_id != user_id and user_id not in blog.like:
+                blog.like.append(user_id)
+                blog.put()
             self.redirect('/')
         else:
             self.redirect('/login')
@@ -190,11 +209,48 @@ class DelHandler(Handler):  # to handle deleting blog
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
             blog = getBlog(blog_id)[0]
-            blog.delete()
+            if blog.user_id == long(check_secure_val(h)):
+                blog.key.delete()
             self.redirect('/')
         else:
             self.redirect('/login')
 
+
+class CommentDel(Handler):
+    def get(self, comment_id):
+        h = self.request.cookies.get('user_id')
+        if h and check_secure_val(h):
+            comment = Comment.get_by_id(long(comment_id))
+            if comment.user_id == long(check_secure_val(h)):
+                comment.delete()
+            self.redirect('/')
+        else:
+            self.redirect('/login')
+
+
+class CommentEdit(Handler):
+    def get(self, comment_id):
+        h = self.request.cookies.get('user_id')
+        if h and check_secure_val(h):
+            comment = Comment.get_by_id(long(comment_id))
+            if comment.user_id == long(check_secure_val(h)):
+                self.render("editComment.html",
+                            comment=comment)
+            else:
+                self.redirect('/')
+        else:
+            self.redirect('/login')
+
+    def post(self, comment_id):
+        h = self.request.cookies.get('user_id')
+        if h and check_secure_val(h):
+            comment = Comment.get_by_id(long(comment_id))
+            if comment.user_id == long(check_secure_val(h)):
+                comment.content = self.request.get('content')
+                comment.put()
+            self.redirect('/')
+        else:
+            self.redirect('/login')
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler),
@@ -202,10 +258,12 @@ app = webapp2.WSGIApplication([
     ('/login', LogHandler),
     ('/logout', LogOutHandler),
     ('/welcome', WelHandler),
-    ('/blog/(\d+)', Fpost),
+    ('/blog/(\d+)', FinishedPost),
     ('/newpost', NewPost),
     ('/comment/(\d+)', CommentHandler),
     ('/edit/(\d+)', EditHandler),
     ('/like/(\d+)', LikeHandler),
-    ('/del/(\d+)', DelHandler)
+    ('/del/(\d+)', DelHandler),
+    ('/comment/del/(\d+)', CommentDel),
+    ('/comment/edit/(\d+)', CommentEdit)
 ], debug=True)
