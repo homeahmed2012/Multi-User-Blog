@@ -147,19 +147,26 @@ class CommentHandler(Handler):  # to handle adding comments
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
             blog = getBlog(blog_id)
-            self.render("commentBlog.html",
-                        blog=blog)
+            if blog[0] is not None:
+                self.render("commentBlog.html",
+                            blog=blog)
+            else:
+                self.redirect('/')
         else:
             self.redirect('/login')
 
     def post(self, blog_id):
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
-            c = Comment(content=self.request.get('new_comment'),
-                        user_id=long(check_secure_val(h)),
-                        blog_id=long(blog_id))
-            c.put()
-            self.get(blog_id)
+            blog = getBlog(blog_id)[0]
+            if blog is not None:
+                c = Comment(content=self.request.get('new_comment'),
+                            user_id=long(check_secure_val(h)),
+                            blog_id=long(blog_id))
+                c.put()
+                self.get(blog_id)
+            else:
+                self.redirect('/')
         else:
             self.redirect('/login')
 
@@ -170,7 +177,7 @@ class EditHandler(Handler):  # to handle editing a blog
         if h and check_secure_val(h):
             cookie_user_id = long(check_secure_val(h))
             blog = getBlog(blog_id)
-            if blog[0].user_id == cookie_user_id:
+            if blog[0] is not None and blog[0].user_id == cookie_user_id:
                 self.render("editBlog.html",
                             blog=blog)
             else:
@@ -182,7 +189,7 @@ class EditHandler(Handler):  # to handle editing a blog
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
             blog = getBlog(blog_id)[0]
-            if blog.user_id == long(check_secure_val(h)):
+            if blog is not None and blog.user_id == long(check_secure_val(h)):
                 blog.body = self.request.get('content')
                 blog.put()
             self.redirect('/')
@@ -196,7 +203,9 @@ class LikeHandler(Handler):  # to handle like a blog
         if h and check_secure_val(h):
             user_id = long(check_secure_val(h))
             blog = getBlog(blog_id)[0]
-            if blog.user_id != user_id and user_id not in blog.like:
+            if blog is not None and \
+               blog.user_id != user_id and\
+               user_id not in blog.like:
                 blog.like.append(user_id)
                 blog.put()
             self.redirect('/')
@@ -209,7 +218,7 @@ class DelHandler(Handler):  # to handle deleting blog
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
             blog = getBlog(blog_id)[0]
-            if blog.user_id == long(check_secure_val(h)):
+            if blog is not None and blog.user_id == long(check_secure_val(h)):
                 blog.key.delete()
             self.redirect('/')
         else:
@@ -221,7 +230,8 @@ class CommentDel(Handler):
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
             comment = Comment.get_by_id(long(comment_id))
-            if comment.user_id == long(check_secure_val(h)):
+            if comment is not None and\
+               comment.user_id == long(check_secure_val(h)):
                 comment.delete()
             self.redirect('/')
         else:
@@ -233,7 +243,8 @@ class CommentEdit(Handler):
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
             comment = Comment.get_by_id(long(comment_id))
-            if comment.user_id == long(check_secure_val(h)):
+            if comment is not None and\
+               comment.user_id == long(check_secure_val(h)):
                 self.render("editComment.html",
                             comment=comment)
             else:
@@ -245,7 +256,8 @@ class CommentEdit(Handler):
         h = self.request.cookies.get('user_id')
         if h and check_secure_val(h):
             comment = Comment.get_by_id(long(comment_id))
-            if comment.user_id == long(check_secure_val(h)):
+            if comment is not None and \
+               comment.user_id == long(check_secure_val(h)):
                 comment.content = self.request.get('content')
                 comment.put()
             self.redirect('/')
